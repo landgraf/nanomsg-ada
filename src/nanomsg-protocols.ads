@@ -1,12 +1,11 @@
 with Interfaces.C;
+with Ada.Unchecked_Conversion;
 package Nanomsg.Protocols is 
-   package C renames Interfaces.C;
-   type Protocol_T is tagged private;
-   function To_C (Obj : in Protocol_T) return C.Int;
    
-private
-   type Protocol_T is tagged record
-      Int : C.Int;
-   end record;
+   package C renames Interfaces.C;
+   
+   type Protocol_T is (Nn_PAIR) with Convention => C, Size => C.Int'Size;
+   for Protocol_T use (Nn_Pair => 1 * 16 + 0);
+   function To_C is new Ada.Unchecked_Conversion (Protocol_T, C.Int);
    
 end Nanomsg.Protocols;

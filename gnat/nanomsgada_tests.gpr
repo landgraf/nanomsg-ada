@@ -1,0 +1,14 @@
+with "aunit";
+with "nanomsgada";
+project nanomsgada_tests is
+   for Main use ("testme.adb");
+   for Exec_Dir use "../bin";
+   for Source_Dirs use ("../tests/");
+   for Object_Dir use "../obj";
+   for Languages use ("Ada");
+ 
+   package Linker is 
+--      for Linker_Options use ("-lnanomsg");
+      for Switches ("testme.adb") use ("-lnanomsg");
+   end Linker;
+end nanomsgada_tests;

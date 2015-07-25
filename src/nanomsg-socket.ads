@@ -1,6 +1,8 @@
 with Nanomsg.Domains;
 with Nanomsg.Protocols;
 package Nanomsg.Socket is 
+   Socket_Exception : exception;
+   
    type Socket_T is tagged private;
    type Socket_Access_T is access all Socket_T;
    
@@ -14,10 +16,19 @@ package Nanomsg.Socket is
    
    procedure Close (Obj : in out Socket_T)
    with Post => Obj.Is_Null;
-
+   
+   procedure Bind (Obj     : in  Socket_T;
+                   Address : in String)
+   with Pre => not Obj.Is_Null;
+   
+   procedure Connect (Obj : in Socket_T;
+                      Address : in String)
+   with Pre => not Obj.Is_Null;
+   
+   function Fd (Obj : in Socket_T) return Integer;
 private
    type Socket_T is tagged record
-      Fd : Integer; -- File Descriptor
+      Fd : Integer := -1; -- File Descriptor
       Domain : Nanomsg.Domains.Domain_T;
       Protocol : Nanomsg.Protocols.Protocol_T;
    end record;
