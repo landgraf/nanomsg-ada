@@ -13,7 +13,8 @@ package body Nanomsg.Test_Socket_Bind_Connect is
       Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pair);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
-      Assert (Condition => T.Socket1.Fd /= T.Socket2.Fd, Message => "Descriptors collision!");
+      Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd,
+              Message => "Descriptors collision!");
       Nanomsg.Socket.Bind (T.Socket1, "tcp://*:5555");
       Nanomsg.Socket.Connect (T.Socket2, Address);
    end Run_Test;

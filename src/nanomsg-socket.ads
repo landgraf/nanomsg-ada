@@ -1,5 +1,7 @@
 with Nanomsg.Domains;
 with Nanomsg.Protocols;
+with Nanomsg.Messages;
+
 package Nanomsg.Socket is 
    Socket_Exception : exception;
    
@@ -25,7 +27,15 @@ package Nanomsg.Socket is
                       Address : in String)
    with Pre => not Obj.Is_Null;
    
-   function Fd (Obj : in Socket_T) return Integer;
+   function Get_Fd (Obj : in Socket_T) return Integer;
+   
+   procedure Send (Obj     : in Socket_T;
+                   Message :    Nanomsg.Messages.Message_T);
+   
+   procedure Receive (Obj     : in out Socket_T;
+                      Message :    out Nanomsg.Messages.Message_T);
+                
+   
 private
    type Socket_T is tagged record
       Fd : Integer := -1; -- File Descriptor

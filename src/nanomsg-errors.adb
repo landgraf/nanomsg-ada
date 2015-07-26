@@ -11,7 +11,7 @@ package C renames Interfaces.C;
    
    function Errno_Text return String is 
       function Strerror (Err : in C.Int) return C.Strings.Chars_Ptr
-      with Import, Convention => C;
+      with Import, Convention => C, External_Name => "nn_strerror";
       Err : constant Integer  := Errno;
    begin
       return "Errno = " & Integer'Image (Err) & " : " & C.Strings.Value (Strerror (C.Int (Err)));
