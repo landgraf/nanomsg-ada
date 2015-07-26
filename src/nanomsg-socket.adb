@@ -80,7 +80,7 @@ package body  Nanomsg.Socket is
       
       procedure Free_Ptr is new Ada.Unchecked_Deallocation (Payload_T, Payload_Access_T);
       
-      Payload : Payload_Access_T := new Payload_T;
+      Payload : Payload_Access_T;
       use type System.Address;
       
       Received : Integer;
