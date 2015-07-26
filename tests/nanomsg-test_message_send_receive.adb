@@ -5,8 +5,6 @@ with Nanomsg.Messages;
 package body Nanomsg.Test_Message_Send_Receive is
       
    procedure Run_Test (T : in out TC) is
-      -- Download attachments based on number selection
-      -- Download attachments based on timestamp selection
       use Aunit.Assertions;
       Address : constant String := "tcp://127.0.0.1:5555";
       Msg1 : constant Nanomsg.Messages.Message_T := Nanomsg.Messages.From_String ("Hello world");

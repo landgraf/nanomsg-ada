@@ -20,7 +20,7 @@ package body Nanomsg.Messages is
          return "";
       end if;
       declare
-         Retval : String (1 .. Obj.Length);--  := Obj.Payload;
+         Retval : String (1 .. Obj.Length);
 --         for Retval'Address use Obj.Payload'Address;
       begin
          for Index in Retval'Range loop
