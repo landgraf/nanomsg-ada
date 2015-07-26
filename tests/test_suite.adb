@@ -2,6 +2,7 @@ with Aunit.Test_Suites; use Aunit.Test_Suites;
 with Nanomsg.Test_Socket_Create_Close;
 with Nanomsg.Test_Socket_Bind_Connect;
 with Nanomsg.Test_Message_Send_Receive;
+with Nanomsg.Test_Send_Binary_File;
 with Nanomsg.Test_Message_Long_Text;
 with Nanomsg.Test_Message_Text_Convert;
 with Nanomsg.Test_Req_Rep;
