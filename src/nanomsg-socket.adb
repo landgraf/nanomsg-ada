@@ -1,5 +1,4 @@
 with Ada.Unchecked_Conversion;
-with Ada.Text_Io;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
 with Nanomsg.Errors;
@@ -99,10 +98,7 @@ package body  Nanomsg.Socket is
          Data :  Nanomsg.Messages.Bytes_Array_T (1 .. Received);
          for Data'Address use Payload;
          
-         Str : String ( 1 .. Received);
-         for Str'Address use Payload;
       begin
-         Ada.Text_Io.Put_Line (Str);
          Message.Set_Payload (new Nanomsg.Messages.Bytes_Array_T'(Data));
       end;
       
