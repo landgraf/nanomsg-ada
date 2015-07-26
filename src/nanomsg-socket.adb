@@ -1,4 +1,5 @@
 with Ada.Unchecked_Conversion;
+with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
 with Nanomsg.Errors;
@@ -77,6 +78,8 @@ package body  Nanomsg.Socket is
       type Payload_T is null record;
       type Payload_Access_T is access all Payload_T;
       
+      procedure Free_Ptr is new Ada.Unchecked_Deallocation (Payload_T, Payload_Access_T);
+      
       Payload : Payload_Access_T := new Payload_T;
       use type System.Address;
       
@@ -91,7 +94,7 @@ package body  Nanomsg.Socket is
                         Flags      :        C.Int
                        ) return C.Int with Import, Convention => C, External_Name => "nn_recv";
       
-      function Free_Msg (Buf_Access : in out System.Address) return C.Int
+      function Free_Msg (Buf_Access : in out Payload_T) return C.Int
           with Import, Convention => C, External_Name => "nn_freemsg";
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
@@ -105,6 +108,9 @@ package body  Nanomsg.Socket is
       begin
          Message.Set_Payload (new Nanomsg.Messages.Bytes_Array_T'(Data));
       end;
+      if Free_Msg (Payload.all) < 0 then
+         raise Socket_Exception with "Deallocation failed";
+      end if;
    end Receive;
    
    procedure Send (Obj : in Socket_T; Message : Nanomsg.Messages.Message_T) is
