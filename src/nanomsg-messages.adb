@@ -20,9 +20,12 @@ package body Nanomsg.Messages is
          return "";
       end if;
       declare
-         Retval : String (1 .. Obj.Length);
-         for Retval'Address use Obj.Payload'Address;
+         Retval : String (1 .. Obj.Length);--  := Obj.Payload;
+--         for Retval'Address use Obj.Payload'Address;
       begin
+         for Index in Retval'Range loop
+            Retval (Index) := Obj.Payload (Index);
+         end loop;
          return Retval;
       end;
    end Text;

@@ -1,8 +1,9 @@
 with System;
 package Nanomsg.Messages is
    
-   type Byte_T is range 0 .. (2 ** 8) - 1 with Convention => C, Size => 8, Alignment => 1;
-   type Bytes_Array_T is array (Natural range <>) of Byte_T
+   --type Byte_T is range 0 .. (2 ** 8) - 1 with Convention => C, Size => 8, Alignment => 1;
+   
+   type Bytes_Array_T is array (Natural range <>) of Character
    with Convention => C, Alignment => 1 ;
    type Bytes_Array_Access_T is access all Bytes_Array_T with Convention => C, Size => System.Word_Size;   
 
