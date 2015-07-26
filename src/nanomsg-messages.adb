@@ -5,14 +5,14 @@ package body Nanomsg.Messages is
    package C renames Interfaces.C;
    function Is_Empty (Obj : in Message_T) return Boolean is (Obj.Length = 0);
    
-   function From_String (Text : in String) return Message_T is
-      Retval                  : Message_T;
-      Payload                 : Bytes_Array_T (Text'Range);
+   
+   procedure From_String (Message :    out Message_T;
+                          Text    : in     String) is
+      Payload                     : Bytes_Array_T (Text'Range);
       for Payload'Address use Text'Address;
    begin
-      Retval.Payload := new Bytes_Array_T'(Payload);
-      Retval.Length  := Text'Length; -- \0 terminated
-      return Retval;
+      Message.Payload := new Bytes_Array_T'(Payload);
+      Message.Length  := Text'Length; 
    end From_String;
    
    function Text (Obj : in Message_T) return String is
@@ -46,8 +46,8 @@ package body Nanomsg.Messages is
       Obj.Length := 0;
    end Free;
    
-   function Payload (Obj : in Message_T) return Bytes_Array_Access_T is (Obj.Payload);
-   function Length (Obj : in Message_T) return Natural is (Obj.Length);
+   function Get_Payload (Obj : in Message_T) return Bytes_Array_Access_T is (Obj.Payload);
+   function Get_Length (Obj : in Message_T) return Natural is (Obj.Length);
    
    procedure Set_Length (Obj    : in out Message_T;
                          Length : in     Natural) is

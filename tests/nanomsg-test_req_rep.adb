@@ -10,27 +10,30 @@ package body Nanomsg.Test_Req_Rep is
       Request : constant String := "Calculate : 2 + 2";
       Reply : constant String := "Answer: 4";
          
-      Req_Send : constant Nanomsg.Messages.Message_T := Nanomsg.Messages.From_String (Request);
+      Req_Send : Nanomsg.Messages.Message_T;
       Req_Rcv : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
-      Rep_Send : Nanomsg.Messages.Message_T := Nanomsg.Messages.From_String (Reply);
+      Rep_Send : Nanomsg.Messages.Message_T;
       Rep_Rcv : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
    begin
+      Nanomsg.Messages.From_String (Req_Send, Request);
+      Nanomsg.Messages.From_String (Rep_Send, Reply);
+      
       Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_REQ);
       Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_REP);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd, 
-              Message => "Descriptors collision!");
+              Message   => "Descriptors collision!");
       Nanomsg.Socket.Bind (T.Socket2, "tcp://*:5555");
       Nanomsg.Socket.Connect (T.Socket1, Address);
       T.Socket1.Send (Req_Send); 
       T.Socket2.Receive (Req_Rcv);
       Assert (Condition => Req_Rcv.Text = Request,
-              Message => "Request damaged in tranmission");
+              Message   => "Request damaged in tranmission");
       T.Socket2.Send (Rep_Send);
       T.Socket1.Receive (Rep_Rcv);
       Assert (Condition => Rep_Rcv.Text = Reply,
-              Message => "Reply damaged in tranmission");
+              Message   => "Reply damaged in tranmission");
       
    end Run_Test;
    

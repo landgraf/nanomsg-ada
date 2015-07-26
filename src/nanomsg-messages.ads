@@ -18,13 +18,14 @@ package Nanomsg.Messages is
    
    function Is_Empty (Obj : in Message_T) return Boolean;
    
-   function From_String (Text : in String) return Message_T;
+   procedure From_String (Message :    out Message_T;
+                          Text    : in     String);
    
    function Text (Obj : in Message_T) return String;
    
-   function Payload (Obj : in Message_T) return Bytes_Array_Access_T;
+   function Get_Payload (Obj : in Message_T) return Bytes_Array_Access_T;
    
-   function Length (Obj : in Message_T) return Natural;
+   function Get_Length (Obj : in Message_T) return Natural;
    
    procedure Set_Length (Obj    : in out Message_T;
                          Length : in Natural);

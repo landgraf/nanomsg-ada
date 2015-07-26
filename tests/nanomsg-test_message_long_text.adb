@@ -11,7 +11,7 @@ package body Nanomsg.Test_Message_Long_Text is
       Msg1 : Nanomsg.Messages.Message_T;
       Msg2 : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
       begin
-         Msg1 :=  Nanomsg.Messages.From_String (Text);
+         Nanomsg.Messages.From_String (Msg1, Text);
          
          Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Push);
          Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pull);

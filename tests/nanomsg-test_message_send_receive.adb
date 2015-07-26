@@ -7,9 +7,10 @@ package body Nanomsg.Test_Message_Send_Receive is
    procedure Run_Test (T : in out TC) is
       use Aunit.Assertions;
       Address : constant String := "tcp://127.0.0.1:5555";
-      Msg1 : constant Nanomsg.Messages.Message_T := Nanomsg.Messages.From_String ("Hello world");
+      Msg1 : Nanomsg.Messages.Message_T;
       Msg2 : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
    begin
+      Nanomsg.Messages.From_String (Msg1, "Hello world");
       Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Push);
       Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pull);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");

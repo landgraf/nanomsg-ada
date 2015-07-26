@@ -9,7 +9,7 @@ package body Nanomsg.Test_Message_Text_Convert is
    procedure Run_Test (T : in out TC) is
       use Aunit.Assertions;
    begin
-      T.Message := Nanomsg.Messages.From_String (Text);
+      Nanomsg.Messages.From_String (T.Message, Text);
       Assert (Condition => T.Message.Text = Text,
               Message => "Message convert failed");
    end Run_Test;

@@ -88,8 +88,8 @@ package body  Nanomsg.Socket is
                         Flags      :        C.Int
                        ) return C.Int with Import, Convention => C, External_Name => "nn_recv";
       
-      function Free_Msg (Buf_Access : in out System.Address) return C.Int
-      with Import, Convention => C, External_Name => "nn_freemsg";
+--      function Free_Msg (Buf_Access : in out System.Address) return C.Int
+ --     with Import, Convention => C, External_Name => "nn_freemsg";
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
       if Received < 0 then
@@ -119,13 +119,13 @@ package body  Nanomsg.Socket is
    begin
       
       Sent := Integer (Nn_Send (C.Int (Obj.Fd),
-                                Message.Payload.all,
-                                C.Size_T (Message.Length),
+                                Message.Get_Payload.all,
+                                C.Size_T (Message.Get_Length),
                                 Flags));
       if Sent < 0 then 
          raise Socket_Exception with "Send: " & Nanomsg.Errors.Errno_Text;
       end if;
-      if Sent /= Message.Length then
+      if Sent /= Message.Get_Length then
          raise Socket_Exception with "Send/Receive count doesn't match";
       end if;
    end Send;
