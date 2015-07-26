@@ -75,12 +75,8 @@ package body  Nanomsg.Socket is
    procedure Receive (Obj : in out Socket_T;
                       Message : out Nanomsg.Messages.Message_T) is      
       
-      type Payload_T is null record;
-      type Payload_Access_T is access all Payload_T;
       
-      procedure Free_Ptr is new Ada.Unchecked_Deallocation (Payload_T, Payload_Access_T);
-      
-      Payload : Payload_Access_T;
+      Payload : System.Address;
       use type System.Address;
       
       Received : Integer;
@@ -88,13 +84,13 @@ package body  Nanomsg.Socket is
       Flags : constant C.Int := 0;
       Nn_Msg : constant C.Size_T := C.Size_T'Last;
       
-      function Nn_Recv (Socket     :        C.Int;
-                        Buf_Access :  out Payload_Access_T;
-                        Size       :        C.Size_T;
-                        Flags      :        C.Int
+      function Nn_Recv (Socket     :     C.Int;
+                        Buf_Access : out System.Address;
+                        Size       :     C.Size_T;
+                        Flags      :     C.Int
                        ) return C.Int with Import, Convention => C, External_Name => "nn_recv";
       
-      function Free_Msg (Buf_Access : in out Payload_T) return C.Int
+      function Free_Msg (Buf_Access :System.Address) return C.Int
           with Import, Convention => C, External_Name => "nn_freemsg";
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
@@ -104,11 +100,11 @@ package body  Nanomsg.Socket is
       Message.Set_Length (Received);
       declare
          Data :  Nanomsg.Messages.Bytes_Array_T (1 .. Received);
-         for Data'Address use Payload.all'Address;
+         for Data'Address use Payload;
       begin
          Message.Set_Payload (new Nanomsg.Messages.Bytes_Array_T'(Data));
       end;
-      if Free_Msg (Payload.all) < 0 then
+      if Free_Msg (Payload) < 0 then
          raise Socket_Exception with "Deallocation failed";
       end if;
    end Receive;
