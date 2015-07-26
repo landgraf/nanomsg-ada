@@ -88,6 +88,8 @@ package body  Nanomsg.Socket is
                         Flags      :        C.Int
                        ) return C.Int with Import, Convention => C, External_Name => "nn_recv";
       
+      function Free_Msg (Buf_Access : in out System.Address) return C.Int
+      with Import, Convention => C, External_Name => "nn_freemsg";
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
       if Received < 0 then
@@ -101,7 +103,9 @@ package body  Nanomsg.Socket is
       begin
          Message.Set_Payload (new Nanomsg.Messages.Bytes_Array_T'(Data));
       end;
-      
+      --  if Free_Msg (Payload) < 0 then
+      --     raise Socket_Exception;
+      --  end if;
    end Receive;
    
    procedure Send (Obj : in Socket_T; Message : Nanomsg.Messages.Message_T) is

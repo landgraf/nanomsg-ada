@@ -1,17 +1,20 @@
 with System;
+with Ada.Finalization;
 package Nanomsg.Messages is
    
    type Bytes_Array_T is array (Natural range <>) of Character
    with Convention => C, Alignment => 1 ;
    type Bytes_Array_Access_T is access all Bytes_Array_T with Convention => C, Size => System.Word_Size;   
 
-   type Message_T is tagged private;
+   type Message_T is new Ada.Finalization.Controlled with private;
    
    Empty_Message : constant Message_T;
    
    procedure Init (Obj     :    out Message_T;
                    Payload : in     Bytes_Array_Access_T;
                    Length  : in     Integer);
+   
+   procedure Free (Obj : in out Message_T);
    
    function Is_Empty (Obj : in Message_T) return Boolean;
    
@@ -28,15 +31,17 @@ package Nanomsg.Messages is
    
    procedure Set_Payload (Obj     : in out Message_T;
                           Payload :    Bytes_Array_Access_T);
-      
+   
 private
+   
+   overriding
+   procedure Finalize (Obj : in out Message_T);
 
-
-   type Message_T is tagged record
+   type Message_T is new Ada.Finalization.Controlled with  record
       Payload : Bytes_Array_Access_T := null;
       Length  : Natural;
    end record;
    
-   Empty_Message : constant Message_T := Message_T'(Payload => null, Length => 0);
+   Empty_Message : constant Message_T := (Ada.Finalization.Controlled with Payload => null, Length => 0);
    
 end Nanomsg.Messages;

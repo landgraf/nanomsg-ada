@@ -1,3 +1,4 @@
+with Ada.Unchecked_Deallocation;
 with Interfaces.C.Strings;
 package body Nanomsg.Messages is
    
@@ -38,6 +39,13 @@ package body Nanomsg.Messages is
       Obj.Length := Length;
    end Init;
    
+   procedure Free (Obj : in out Message_T) is 
+      procedure Free_Payload is new Ada.Unchecked_Deallocation (Bytes_Array_T, Bytes_Array_Access_T);
+   begin
+      Free_Payload (Obj.Payload);
+      Obj.Length := 0;
+   end Free;
+   
    function Payload (Obj : in Message_T) return Bytes_Array_Access_T is (Obj.Payload);
    function Length (Obj : in Message_T) return Natural is (Obj.Length);
    
@@ -52,4 +60,10 @@ package body Nanomsg.Messages is
    begin
       Obj.Payload := Payload;
    end Set_Payload;
+   
+   procedure Finalize (Obj : in out Message_T) is 
+   begin
+      Free (Obj);
+   end Finalize;
+   
 end Nanomsg.Messages;
