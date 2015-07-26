@@ -1,5 +1,6 @@
 with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
+with Ada.Streams;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
 with Nanomsg.Errors;
@@ -99,10 +100,10 @@ package body  Nanomsg.Socket is
       end if;
       Message.Set_Length (Received);
       declare
-         Data :  Nanomsg.Messages.Bytes_Array_T (1 .. Received);
+         Data :  Ada.Streams.Stream_Element_Array (1 .. Ada.Streams.Stream_Element_Offset (Received));
          for Data'Address use Payload;
       begin
-         Message.Set_Payload (new Nanomsg.Messages.Bytes_Array_T'(Data));
+         Message.Set_Payload (Data);
       end;
       if Free_Msg (Payload) < 0 then
          raise Socket_Exception with "Deallocation failed";
@@ -112,7 +113,7 @@ package body  Nanomsg.Socket is
    procedure Send (Obj : in Socket_T; Message : Nanomsg.Messages.Message_T) is
    Flags : C.Int := 0;
       function Nn_Send (Socket     : C.Int;
-                        Buf_Access : Nanomsg.Messages.Bytes_Array_T;
+                        Buf_Access : Ada.Streams.Stream_Element_Array;
                         Size       : C.Size_T;
                         Flags      : C.Int
                        ) return C.Int with Import, Convention => C, External_Name => "nn_send";

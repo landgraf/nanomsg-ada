@@ -1,10 +1,9 @@
 with System;
 with Ada.Finalization;
+with Ada.Streams;
 package Nanomsg.Messages is
    
-   type Bytes_Array_T is array (Natural range <>) of Character
-   with Convention => C, Alignment => 1 ;
-   type Bytes_Array_Access_T is access all Bytes_Array_T with Convention => C, Size => System.Word_Size;   
+   type Bytes_Array_Access_T is access all Ada.Streams.Stream_Element_Array with Convention => C, Size => System.Word_Size;   
 
    type Message_T is new Ada.Finalization.Controlled with private;
    
@@ -33,6 +32,9 @@ package Nanomsg.Messages is
    procedure Set_Payload (Obj     : in out Message_T;
                           Payload :    Bytes_Array_Access_T);
    
+   procedure Set_Payload (Obj     : in out Message_T;
+                          Payload : in     Ada.Streams.Stream_Element_Array);
+
 private
    
    overriding
