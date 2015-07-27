@@ -1,4 +1,5 @@
 with Interfaces.C.Strings;
+with Ada.Finalization;
 package Nanomsg.Sockopt is 
    package C renames Interfaces.C;
    
@@ -27,7 +28,7 @@ package Nanomsg.Sockopt is
                           NN_SOCKET_NAME       => 15
                     );
 
-   type Socket_Option_T (Option : Option_Type_T) is tagged private;
+   type Socket_Option_T (Option : Option_Type_T) is new Ada.Finalization.Controlled with private;
                     
    subtype Int_Option_T is Option_Type_T range NN_LINGER .. NN_IPV4ONLY;
    subtype Str_Option_T is Option_Type_T range NN_SOCKET_NAME .. NN_SOCKET_NAME;
@@ -67,13 +68,19 @@ package Nanomsg.Sockopt is
    not overriding
    function Get_Str_Value (Obj : in Socket_Option_T) return C.Strings.Chars_Ptr;
    
+   procedure Set_Value (Obj   : in out Socket_Option_T;
+			Value : in     Integer);
+   
+   procedure Set_Value (Obj   : in out Socket_Option_T;
+			Value : in     String);
+   
    not overriding
    function Get_Level (Obj : in Socket_Option_T) return Socket_Option_Level_T;
    
    
    
 private
-   type Socket_Option_T (Option : Option_Type_T) is tagged record
+   type Socket_Option_T (Option : Option_Type_T) is new Ada.Finalization.Controlled with record
       Level : Socket_Option_Level_T := Option_Level (Option);
       case Option is
          when Int_Option_T => 
@@ -82,4 +89,7 @@ private
             Str_Value : C.Strings.Chars_Ptr;
       end case;
    end record;
+   
+   overriding
+   procedure Finalize (Obj : in out Socket_Option_T);
 end Nanomsg.Sockopt;

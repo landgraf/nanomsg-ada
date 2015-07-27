@@ -6,10 +6,12 @@ with Nanomsg.Test_Send_Binary_File;
 with Nanomsg.Test_Message_Long_Text;
 with Nanomsg.Test_Message_Text_Convert;
 with Nanomsg.Test_Req_Rep;
+with Nanomsg.Test_Socket_Name;
 function Test_Suite return Access_Test_Suite is
    TS_Ptr : constant Access_Test_Suite := new Aunit.Test_Suites.Test_Suite; 
 begin
    Ts_Ptr.Add_Test (new Nanomsg.Test_Socket_Create_Close.Tc);
+   Ts_Ptr.Add_Test (new Nanomsg.Test_Socket_Name.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Socket_Bind_Connect.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Message_Text_Convert.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Message_Long_Text.Tc);
