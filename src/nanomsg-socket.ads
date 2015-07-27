@@ -1,7 +1,7 @@
 with Nanomsg.Domains;
 with Nanomsg.Protocols;
 with Nanomsg.Messages;
-
+with Nanomsg.Sockopt;
 package Nanomsg.Socket is 
    Socket_Exception : exception;
    
@@ -19,12 +19,12 @@ package Nanomsg.Socket is
    procedure Close (Obj : in out Socket_T)
    with Post => Obj.Is_Null;
    
-   procedure Bind (Obj     : in  Socket_T;
-                   Address : in String)
+   procedure Bind (Obj     : in out Socket_T;
+                   Address : in     String)
    with Pre => not Obj.Is_Null;
    
-   procedure Connect (Obj : in Socket_T;
-                      Address : in String)
+   procedure Connect (Obj     : in out Socket_T;
+                      Address : in     String)
    with Pre => not Obj.Is_Null;
    
    function Get_Fd (Obj : in Socket_T) return Integer;
@@ -37,6 +37,8 @@ package Nanomsg.Socket is
    
    procedure Delete_Endpoint (Obj : in out Socket_T);
    
+   procedure Set_Option (Obj    : in out Socket_T;
+                         Option : in     Nanomsg.Sockopt.Socket_Option_T);
 private
    type Socket_T is tagged record
       Fd : Integer := -1; -- File Descriptor

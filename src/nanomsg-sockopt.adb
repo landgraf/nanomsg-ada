@@ -7,10 +7,10 @@ package body Nanomsg.Sockopt is
       return To_Int (Obj.Option);
    end To_C;
    
-   function Is_Int (Obj : in Socket_Option_T) return Boolean
-   is 
-   begin
-      return Obj.Option in Int_Option_T;
-   end Is_Int;
+   function Get_Level (Obj : in Socket_Option_T) return Socket_Option_Level_T is (Obj.Level);
+   
+   function Get_Int_Value (Obj : in Socket_Option_T) return C.Int is (Obj.Int_Value);
+   
+   function Get_Str_Value (Obj : in Socket_Option_T) return C.Strings.Chars_Ptr is (Obj.Str_Value);
    
 end Nanomsg.Sockopt;

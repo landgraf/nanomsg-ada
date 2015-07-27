@@ -40,34 +40,32 @@ package body  Nanomsg.Socket is
       Obj.Fd := -1;
    end Close;
 
-   procedure Bind (Obj     : in Socket_T;
-                   Address : in String) is
+   procedure Bind (Obj     : in out Socket_T;
+                   Address : in     String) is
    
       function C_Bind (Socket : in C.Int; Address : in C.Strings.Chars_Ptr) return C.Int
       with Import, Convention => C, External_Name => "nn_bind";
-      Endpoint : C.Int := -1;
       C_Address : C.Strings.Chars_Ptr := C.Strings.New_String (Address);
    begin
-      Endpoint := C_Bind(C.Int (Obj.Fd), C_Address);
+      Obj.Endpoint := Integer (C_Bind(C.Int (Obj.Fd), C_Address));
       C.Strings.Free (C_Address);
-      if Endpoint < -1 then
+      if Obj.Endpoint < -1 then
          raise Socket_Exception with "Bind: "  & Nanomsg.Errors.Errno_Text;
       end if;
       -- FIXME 
       -- Add endpoints container
    end Bind;
    
-   procedure Connect (Obj     : in Socket_T;
-                   Address : in String) is
+   procedure Connect (Obj     : in out Socket_T;
+                      Address : in     String) is
    
       function C_Connect (Socket : in C.Int; Address : in C.Strings.Chars_Ptr) return C.Int
       with Import, Convention => C, External_Name => "nn_connect";
-      Endpoint : C.Int := -1;
       C_Address : C.Strings.Chars_Ptr := C.Strings.New_String (Address);
    begin
-      Endpoint := C_Connect(C.Int (Obj.Fd), C_Address) ;
+      Obj.Endpoint := Integer (C_Connect(C.Int (Obj.Fd), C_Address));
       C.Strings.Free (C_Address);
-      if Endpoint < 0 then
+      if Obj.Endpoint < 0 then
          raise Socket_Exception with "Connect: " & Nanomsg.Errors.Errno_Text;
       end if;
    end Connect;
@@ -138,10 +136,55 @@ package body  Nanomsg.Socket is
                             Endpoint : C.Int) return C.Int
       with Import, Convention => C, External_Name => "nn_shutdown";
    begin
-      if Nn_Shutdown (C.Int (Obj.Fd), C.Int (Obj.Endpoint)) < 0 then
-         raise Socket_Exception with "Shutdown Error";
+      if Obj.Endpoint > 0 then
+         if Nn_Shutdown (C.Int (Obj.Fd), C.Int (Obj.Endpoint)) < 0 then
+            raise Socket_Exception with "Shutdown Error" &  Nanomsg.Errors.Errno_Text;
+         end if;
+         Obj.Endpoint := -1;
       end if;
-      Obj.Endpoint := -1;
    end Delete_Endpoint;
    
+   procedure Set_Option (Obj    : in out Socket_T;
+                         Option : in     Nanomsg.Sockopt.Socket_Option_T) 
+   is     
+      use Nanomsg.Sockopt;
+      function C_Setsockopt (Socket : C.Int;
+                             Level : C.Int;
+                             Option : C.Int;
+                             Value : System.Address;
+                             Size : C.Size_T) return C.Int with Import, Convention => C, External_Name => "nn_setsockopt";
+      Option_Level : C.Int := (case Option.Get_Level is
+                                  when Generic_Socket_Level => 0,
+                                  when Type_Specific_Socket_Level => Nanomsg.Domains.To_C (Obj.Domain),
+                                  when Transport_Specific_Socket_Level => Nanomsg.Protocols.To_C (Obj.Protocol));
+   begin
+      if Option.Is_Int_Option then
+         declare
+            Value : C.Int := Option.Get_Int_Value;
+         begin
+            if C_Setsockopt (C.Int (Obj.Fd), 
+                             Option_Level, 
+                             Option.To_C, 
+                             Value'Address,
+                             C.Int'Size) < 0 then
+               raise Socket_Exception with "Setopt error";
+            end if;
+         end;
+      elsif Option.Is_Str_Option then
+         declare
+            Value : C.Strings.Chars_Ptr := Option.Get_Str_Value;
+         begin
+            if C_Setsockopt (C.Int (Obj.Fd),
+                             Option_Level, 
+                             Option.To_C, 
+                             Value'Address,
+                             C.Strings.Strlen (Option.Get_Str_Value)) < 0 then
+               
+               raise Socket_Exception with "Setopt error";
+            end if;
+         end;
+      else
+         raise Socket_Exception with "Unknown option type";
+      end if;
+   end Set_Option;
 end Nanomsg.Socket;
