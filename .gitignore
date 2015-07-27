@@ -9,3 +9,9 @@
 
 # Ada Library Information
 *.ali
+
+
+## Object/Lib/bin dirs
+bin/*
+lib/*
+obj/*
