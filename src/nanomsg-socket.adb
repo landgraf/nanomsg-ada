@@ -33,6 +33,7 @@ package body  Nanomsg.Socket is
       with Import, Convention => C, External_Name => "nn_close";
       
    begin
+      Obj.Delete_Endpoint;
       if C_Nn_Close (C.Int (Obj.Fd)) /= 0 then
          raise Socket_Exception with "Close: " & Nanomsg.Errors.Errno_Text;
       end if;
@@ -131,4 +132,16 @@ package body  Nanomsg.Socket is
          raise Socket_Exception with "Send/Receive count doesn't match";
       end if;
    end Send;
+   
+   procedure Delete_Endpoint (Obj : in out Socket_T) is
+      function Nn_Shutdown (Socket : C.Int;
+                            Endpoint : C.Int) return C.Int
+      with Import, Convention => C, External_Name => "nn_shutodown";
+   begin
+      if Nn_Shutdown (Obj.Fd, Obj.Endpoint) < 0 then
+         raise Socket_Exception with "Shutdown Error";
+      end if;
+      Obj.Endpoint := -1;
+   end Delete_Endpoint;
+   
 end Nanomsg.Socket;

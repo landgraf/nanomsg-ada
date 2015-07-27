@@ -34,12 +34,14 @@ package Nanomsg.Socket is
    
    procedure Receive (Obj     : in out Socket_T;
                       Message :    out Nanomsg.Messages.Message_T);
-                
+   
+   procedure Delete_Endpoint (Obj : in out Socket_T);
    
 private
    type Socket_T is tagged record
       Fd : Integer := -1; -- File Descriptor
       Domain : Nanomsg.Domains.Domain_T;
       Protocol : Nanomsg.Protocols.Protocol_T;
+      Endpoint : Integer := -1;
    end record;
 end Nanomsg.Socket;
