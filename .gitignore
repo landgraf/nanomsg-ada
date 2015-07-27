@@ -1,3 +1,9 @@
+# Emacs swap files
+*.ad?~
+\#*
+\.#*
+*\#
+
 # Object file
 *.o
 
