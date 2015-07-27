@@ -136,9 +136,9 @@ package body  Nanomsg.Socket is
    procedure Delete_Endpoint (Obj : in out Socket_T) is
       function Nn_Shutdown (Socket : C.Int;
                             Endpoint : C.Int) return C.Int
-      with Import, Convention => C, External_Name => "nn_shutodown";
+      with Import, Convention => C, External_Name => "nn_shutdown";
    begin
-      if Nn_Shutdown (Obj.Fd, Obj.Endpoint) < 0 then
+      if Nn_Shutdown (C.Int (Obj.Fd), C.Int (Obj.Endpoint)) < 0 then
          raise Socket_Exception with "Shutdown Error";
       end if;
       Obj.Endpoint := -1;
