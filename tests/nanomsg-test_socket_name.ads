@@ -16,6 +16,6 @@ package Nanomsg.Test_Socket_Name is
    overriding
    function Name (T : TC) return Message_String;
 private
-   Socket_Name : constant String := "Test";
+   Socket_Name : constant String := "SocketNameLong";
 end Nanomsg.Test_Socket_Name;
  
