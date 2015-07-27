@@ -172,19 +172,57 @@ package body  Nanomsg.Socket is
          end;
       elsif Option.Is_Str_Option then
          declare
-            Value : C.Strings.Chars_Ptr := Option.Get_Str_Value;
+            Value : String := Option.Get_Str_Value;
+	    C_Value : C.Strings.Chars_Ptr := C.Strings.New_String (Value);
          begin
             if C_Setsockopt (C.Int (Obj.Fd),
                              Option_Level, 
                              Option.To_C, 
-                             Value'Address,
-                             C.Strings.Strlen (Option.Get_Str_Value)) < 0 then
+                             C_Value'Address,
+                             C.Strings.Strlen (C_Value)) < 0 then
                
-               raise Socket_Exception with "Setopt error";
+               raise Socket_Exception with "Setopt error"  &  Nanomsg.Errors.Errno_Text;
             end if;
          end;
       else
          raise Socket_Exception with "Unknown option type";
       end if;
    end Set_Option;
+   
+   function Get_Option (Obj : in Socket_T;
+			Name : in Nanomsg.Sockopt.Option_Type_T
+		       ) return Nanomsg.Sockopt.Socket_Option_T is
+      function Nn_Getsockopt (Socket : in     C.Int;
+			      Level  : in     C.Int;
+			      Option : in     C.Int;
+			      Value  : in     System.Address;
+			      Size   : access C.Size_T) return C.Int
+      with Import, Convention => C, External_Name => "nn_getsockopt";
+      use Nanomsg.Sockopt;
+      Option : Socket_Option_T (Name);
+      Option_Level : C.Int := (case Option.Get_Level is
+                                  when Generic_Socket_Level => 0,
+                                  when Type_Specific_Socket_Level => Nanomsg.Domains.To_C (Obj.Domain),
+                                  when Transport_Specific_Socket_Level => Nanomsg.Protocols.To_C (Obj.Protocol));
+      
+   begin
+      if Option.Is_Str_Option then
+	 declare
+	    Max_Size : constant := 100;
+	    Str : String (1 ..  Max_Size);
+	    Value : C.Strings.Chars_Ptr := C.Strings.New_String (Str);
+	    Size : aliased C.Size_T;
+	 begin
+	    if Nn_Getsockopt ( Socket => C.Int (Obj.Fd),
+			      Level  => Option_Level,
+			      Option => Option.To_C,
+			      Value => Value'Address,
+			      Size =>  Size'Access) < 0 then
+	       raise Socket_Exception with "Setopt error"  &  Nanomsg.Errors.Errno_Text;
+	    end if;
+	    Option.Set_Value (C.Strings.Value (Value, Size)); 
+	 end;
+      end if;
+      return Option;
+   end Get_Option;
 end Nanomsg.Socket;

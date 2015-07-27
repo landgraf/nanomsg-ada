@@ -1,5 +1,6 @@
-with Interfaces.C.Strings;
+with Interfaces.C;
 with Ada.Finalization;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 package Nanomsg.Sockopt is 
    package C renames Interfaces.C;
    
@@ -66,11 +67,12 @@ package Nanomsg.Sockopt is
    function Get_Int_Value (Obj : in Socket_Option_T) return C.Int;
    
    not overriding
-   function Get_Str_Value (Obj : in Socket_Option_T) return C.Strings.Chars_Ptr;
+   function Get_Str_Value (Obj : in Socket_Option_T) return  String;
    
+   not overriding
    procedure Set_Value (Obj   : in out Socket_Option_T;
 			Value : in     Integer);
-   
+   not overriding
    procedure Set_Value (Obj   : in out Socket_Option_T;
 			Value : in     String);
    
@@ -86,7 +88,7 @@ private
          when Int_Option_T => 
             Int_Value : C.Int;
          when Str_Option_T =>
-            Str_Value : C.Strings.Chars_Ptr;
+            Str_Value : Unbounded_String;
       end case;
    end record;
    

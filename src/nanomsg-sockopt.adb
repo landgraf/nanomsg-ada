@@ -11,24 +11,28 @@ package body Nanomsg.Sockopt is
    
    function Get_Int_Value (Obj : in Socket_Option_T) return C.Int is (Obj.Int_Value);
    
-   function Get_Str_Value (Obj : in Socket_Option_T) return C.Strings.Chars_Ptr is (Obj.Str_Value);
+   function Get_Str_Value (Obj : in Socket_Option_T) return String is (To_String (Obj.Str_Value));
    
    procedure Set_Value (Obj : in out Socket_Option_T;
 			Value : in Integer) is
    begin
+      if Obj.Option not in Int_Option_T then
+	 raise Constraint_Error;
+      end if;
       Obj.Int_Value := C.Int (Value);
    end Set_Value;
    
    procedure Set_Value (Obj : in out Socket_Option_T;
 			Value : in String) is
    begin
-      Obj.Str_Value := C.Strings.New_String (Value);
+      if Obj.Option not in Str_Option_T then
+	 raise Constraint_Error;
+      end if;
+      Obj.Str_Value := To_Unbounded_String (Value);
    end Set_Value;
    
    procedure Finalize (Obj : in out Socket_Option_T) is
    begin
-      if Obj.Option in Str_Option_T then
-	 C.Strings.Free (Obj.Str_Value);
-      end if;
+      null;
    end Finalize;
 end Nanomsg.Sockopt;

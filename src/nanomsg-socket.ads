@@ -39,6 +39,10 @@ package Nanomsg.Socket is
    
    procedure Set_Option (Obj    : in out Socket_T;
                          Option : in     Nanomsg.Sockopt.Socket_Option_T);
+   
+   function Get_Option (Obj : in Socket_T;
+			Name : in Nanomsg.Sockopt.Option_Type_T) return Nanomsg.Sockopt.Socket_Option_T;
+   
 private
    type Socket_T is tagged record
       Fd : Integer := -1; -- File Descriptor
