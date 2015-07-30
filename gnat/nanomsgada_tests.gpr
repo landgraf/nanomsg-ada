@@ -8,7 +8,6 @@ project nanomsgada_tests is
    for Languages use ("Ada");
  
    package Linker is 
---      for Linker_Options use ("-lnanomsg");
       for Switches ("testme.adb") use ("-lnanomsg");
    end Linker;
 end nanomsgada_tests;
