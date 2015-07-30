@@ -37,11 +37,23 @@ package Nanomsg.Socket is
    
    procedure Delete_Endpoint (Obj : in out Socket_T);
    
-   procedure Set_Option (Obj    : in out Socket_T;
-                         Option : in     Nanomsg.Sockopt.Socket_Option_T);
+   function Get_Option (Obj   : in Socket_T;
+                        Level : in Nanomsg.Sockopt.Option_Level_T;
+                        Name  : in Nanomsg.Sockopt.Option_Type_T) return String;
    
-   function Get_Option (Obj : in Socket_T;
-			Name : in Nanomsg.Sockopt.Option_Type_T) return Nanomsg.Sockopt.Socket_Option_T;
+   function Get_Option (Obj   : in Socket_T;
+                        Level : in Nanomsg.Sockopt.Option_Level_T;
+                        Name  : in Nanomsg.Sockopt.Option_Type_T) return Natural;
+   
+   procedure Set_Option (Obj   : in out Socket_T;
+                         Level : in     Nanomsg.Sockopt.Option_Level_T;
+                         Name  : in     Nanomsg.Sockopt.Option_Type_T;
+                         Value : in     Natural);
+   
+   procedure Set_Option (Obj   : in out Socket_T;
+                         Level : in     Nanomsg.Sockopt.Option_Level_T;
+                         Name  : in     Nanomsg.Sockopt.Option_Type_T;
+                         Value : in     String);
    
 private
    type Socket_T is tagged record

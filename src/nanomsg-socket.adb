@@ -4,6 +4,7 @@ with Ada.Streams;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
 with Nanomsg.Errors;
+with Nanomsg.Sockopt;
 with System;
 package body  Nanomsg.Socket is
    package C renames Interfaces.C;
@@ -41,7 +42,7 @@ package body  Nanomsg.Socket is
 
    procedure Bind (Obj     : in out Socket_T;
                    Address : in     String) is
-   
+      
       function C_Bind (Socket : in C.Int; Address : in C.Strings.Chars_Ptr) return C.Int
       with Import, Convention => C, External_Name => "nn_bind";
       C_Address : C.Strings.Chars_Ptr := C.Strings.New_String (Address);
@@ -57,7 +58,7 @@ package body  Nanomsg.Socket is
    
    procedure Connect (Obj     : in out Socket_T;
                       Address : in     String) is
-   
+      
       function C_Connect (Socket : in C.Int; Address : in C.Strings.Chars_Ptr) return C.Int
       with Import, Convention => C, External_Name => "nn_connect";
       C_Address : C.Strings.Chars_Ptr := C.Strings.New_String (Address);
@@ -90,7 +91,7 @@ package body  Nanomsg.Socket is
                        ) return C.Int with Import, Convention => C, External_Name => "nn_recv";
       
       function Free_Msg (Buf_Access :System.Address) return C.Int
-          with Import, Convention => C, External_Name => "nn_freemsg";
+      with Import, Convention => C, External_Name => "nn_freemsg";
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
       if Received < 0 then
@@ -109,7 +110,7 @@ package body  Nanomsg.Socket is
    end Receive;
    
    procedure Send (Obj : in Socket_T; Message : Nanomsg.Messages.Message_T) is
-   Flags : C.Int := 0;
+      Flags : C.Int := 0;
       function Nn_Send (Socket     : C.Int;
                         Buf_Access : Ada.Streams.Stream_Element_Array;
                         Size       : C.Size_T;
@@ -143,95 +144,109 @@ package body  Nanomsg.Socket is
       end if;
    end Delete_Endpoint;
    
-   procedure Set_Option (Obj    : in out Socket_T;
-                         Option : in     Nanomsg.Sockopt.Socket_Option_T) 
+   function C_Setsockopt (Socket : C.Int;
+                          Level  : C.Int;
+			  Option : C.Int;
+			  Value  : System.Address;
+			  Size   : C.Size_T) return C.Int with Import, Convention => C, External_Name => "nn_setsockopt";
+   
+   procedure Set_Option (Obj   : in out Socket_T;
+                         Level : in     Nanomsg.Sockopt.Option_Level_T;
+                         Name  : in     Nanomsg.Sockopt.Option_Type_T;
+                         Value : in     Natural)
    is     
       use Nanomsg.Sockopt;
-      function C_Setsockopt (Socket : C.Int;
-			     Level  : C.Int;
-			     Option : C.Int;
-			     Value  : System.Address;
-			     Size   : C.Size_T) return C.Int with Import, Convention => C, External_Name => "nn_setsockopt";
-      Option_Level : C.Int := (case Option.Get_Level is
-                                  when Generic_Socket_Level => 0,
-                                  when Type_Specific_Socket_Level => Nanomsg.Domains.To_C (Obj.Domain),
-                                  when Transport_Specific_Socket_Level => Nanomsg.Protocols.To_C (Obj.Protocol));
+      Size : C.Size_T := C.Size_T (C.Int'Size);
    begin
-      if Option.Is_Int_Option then
-         declare
-            Value : C.Int := Option.Get_Int_Value;
-	    Size : C.Size_T := C.Size_T (C.Int'Size);
-         begin
-            if C_Setsockopt (C.Int (Obj.Fd), 
-                             Option_Level, 
-                             Option.To_C, 
-                             Value'Address,
-                             Size) < 0 then
-               raise Socket_Exception with "Setopt error";
-            end if;
-         end;
-      elsif Option.Is_Str_Option then
-         declare
-            Value : String := Option.Get_Str_Value;
-	    C_Value : C.Strings.Char_Array_Access := new C.Char_Array'(C.To_C (Value)) with Convention => C;
-	    procedure Free is new Ada.Unchecked_Deallocation (Name	=> C.Strings.Char_Array_Access, 
-							      Object	=> C.Char_Array);
-	    Size	: C.Size_T	:= C_Value'Length;
-         begin
-            if C_Setsockopt (C.Int (Obj.Fd),
-                             Option_Level, 
-                             Option.To_C, 
-                             C_Value.all'Address,
-                             Size) < 0 then
-               raise Socket_Exception with "Setopt error"  &  Nanomsg.Errors.Errno_Text;
-            end if;
-	    Free (C_Value);
-         end;
-      else
-         raise Socket_Exception with "Unknown option type";
-      end if;
+      begin
+         if C_Setsockopt (C.Int (Obj.Fd), 
+                          C.Int (Level), 
+                          C.Int (Name), 
+                          Value'Address,
+                          Size) < 0 then
+            raise Socket_Exception with "Setopt error";
+         end if;
+      end;
    end Set_Option;
    
-   function Get_Option (Obj : in Socket_T;
-			Name : in Nanomsg.Sockopt.Option_Type_T
-		       ) return Nanomsg.Sockopt.Socket_Option_T is
-      type String_Access_T is access all String with Convention => C;
+   procedure Set_Option (Obj   : in out Socket_T;
+                         Level : in     Nanomsg.Sockopt.Option_Level_T;
+                         Name  : in     Nanomsg.Sockopt.Option_Type_T;
+                         Value : in     String) is
+      C_Value : C.Strings.Char_Array_Access := new C.Char_Array'(C.To_C (Value)) with Convention => C;
+      procedure Free is new Ada.Unchecked_Deallocation (Name	=> C.Strings.Char_Array_Access, 
+							Object	=> C.Char_Array);
+      Size	: C.Size_T	:= C_Value'Length;
+   begin
+      if C_Setsockopt (C.Int (Obj.Fd),
+                       C.Int (Level), 
+                       C.Int (Name), 
+                       C_Value.all'Address,
+                       Size) < 0 then
+         raise Socket_Exception with "Setopt error"  &  Nanomsg.Errors.Errno_Text;
+      end if;
+      Free (C_Value);
+   end Set_Option;
+   
+
+   
+
+   function Get_Option (Obj   : in Socket_T;
+                        Level : in Nanomsg.Sockopt.Option_Level_T;
+                        Name  : in Nanomsg.Sockopt.Option_Type_T) return String is
+      type String_Access_T is access all String;
       procedure Free is new Ada.Unchecked_Deallocation (Name => String_Access_T,
 							Object => String);
-      
       
       function Nn_Getsockopt (Socket	  : in 	   C.Int;
 			      Level	  : in 	   C.Int;
 			      Option_Name : in 	   C.Int;
 			      Value	  : in out String_Access_T;
 			      Size	  : in 	   System.Address) return C.Int
-      with Import, Convention => C, External_Name => "nn_getsockopt";
-      use Nanomsg.Sockopt;
-      Option : Socket_Option_T (Name);
-      Option_Level : C.Int := (case Option.Get_Level is
-                                  when Generic_Socket_Level => 0,
-                                  when Type_Specific_Socket_Level => Nanomsg.Domains.To_C (Obj.Domain),
-                                  when Transport_Specific_Socket_Level => Nanomsg.Protocols.To_C (Obj.Protocol));
+      with Import, Convention => C, External_Name => "nn_getsockopt";      
       
+      
+      use Nanomsg.Sockopt;
+      Max_Size : constant := 63;
+      Ptr : String_Access_T := new String(1..Max_Size);
+      Size	: C.Size_T := Max_Size;
+      use type C.Size_T;
    begin
-      if Option.Is_Str_Option then
-	 declare
-	    Max_Size : constant := 63;
-	    Ptr : String_Access_T := new String(1..Max_Size);
-	    Size	: C.Size_T := Max_Size;
-	    use type C.Size_T;
-	 begin
-	    if Nn_Getsockopt (Socket		=> C.Int (Obj.Fd),
-			      Level		=> Option_Level,
-			      Option_Name	=> Option.To_C,
-			      Value		=> Ptr,
-			      Size		=> Size'Address) < 0 then
-	       raise Socket_Exception with "Getopt error"  &  Nanomsg.Errors.Errno_Text;
-	    end if;
-	    Option.Set_Value (Ptr.all(1.. Integer (Size))); 
-	    Free (Ptr);
-	 end;
+      if Nn_Getsockopt (Socket		=> C.Int (Obj.Fd),
+			Level		=> C.Int (Level),
+			Option_Name	=> C.Int (Name),
+			Value		=> Ptr,
+			Size		=> Size'Address) < 0 then
+	 raise Socket_Exception with "Getopt error"  &  Nanomsg.Errors.Errno_Text;
       end if;
-      return Option;
+      declare
+         Retval : constant String := Ptr.all(1.. Integer (Size)); 
+      begin
+	 Free (Ptr);
+         return Retval;
+      end;
    end Get_Option;
+   
+   function Get_Option (Obj   : in Socket_T;
+                        Level : in Nanomsg.Sockopt.Option_Level_T;
+                        Name  : in Nanomsg.Sockopt.Option_Type_T) return Natural is
+      Retval : Natural;
+      Size : C.Size_T := C.Int'Size;
+      function Nn_Getsockopt (Socket	  : in 	   C.Int;
+			      Level	  : in 	   C.Int;
+			      Option_Name : in 	   C.Int;
+			      Value	  : in out C.Int;
+			      Size	  : in 	   System.Address) return C.Int
+      with Import, Convention => C, External_Name => "nn_getsockopt";      
+   begin
+      if Nn_Getsockopt (Socket		=> C.Int (Obj.Fd),
+			Level		=> C.Int (Level),
+			Option_Name	=> C.Int (Name),
+			Value		=> C.Int (Retval),
+			Size		=> Size'Address) < 0 then
+	 raise Socket_Exception with "Getopt error"  &  Nanomsg.Errors.Errno_Text;
+      end if;
+      return Retval;
+   end Get_Option;      
+   
 end Nanomsg.Socket;
