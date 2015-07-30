@@ -1,7 +1,7 @@
 with Ada.Calendar;
 with Ada.Text_Io;
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pipeline;
 with Aunit.Assertions;
 with Nanomsg.Messages;
 package body Nanomsg.Test_Message_Send_Receive_Million is 
@@ -17,8 +17,8 @@ package body Nanomsg.Test_Message_Send_Receive_Million is
 
    begin
       Nanomsg.Messages.From_String (Msg1, "Hello world");
-      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Push);
-      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pull);
+      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Push);
+      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Pull);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd, 

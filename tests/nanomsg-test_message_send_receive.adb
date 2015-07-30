@@ -1,7 +1,7 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
 with Aunit.Assertions;
 with Nanomsg.Messages;
+with Nanomsg.Pipeline;
 package body Nanomsg.Test_Message_Send_Receive is
       
    procedure Run_Test (T : in out TC) is
@@ -11,8 +11,8 @@ package body Nanomsg.Test_Message_Send_Receive is
       Msg2 : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
    begin
       Nanomsg.Messages.From_String (Msg1, "Hello world");
-      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Push);
-      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pull);
+      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Push);
+      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Pull);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd, 

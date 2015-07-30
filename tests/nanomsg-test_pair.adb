@@ -1,5 +1,5 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pair;
 with Aunit.Assertions;
 with Nanomsg.Messages;
 
@@ -18,8 +18,8 @@ package body Nanomsg.Test_Pair is
       Nanomsg.Messages.From_String (Req_Send, Request);
       Nanomsg.Messages.From_String (Rep_Send, Reply);
       
-      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_PAIR);
-      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_PAIR);
+      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_PAIR);
+      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_PAIR);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd, 

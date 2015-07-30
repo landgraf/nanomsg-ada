@@ -1,5 +1,4 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
 with Nanomsg.Messages;
 with Nanomsg.Sockopt;
 package Nanomsg.Socket is 
@@ -12,7 +11,7 @@ package Nanomsg.Socket is
    
    procedure Init (Obj      :    out Socket_T;
                    Domain   : in     Nanomsg.Domains.Domain_T;
-                   Protocol :        Nanomsg.Protocols.Protocol_T
+                   Protocol :        Protocol_T
                   )
    with Post => not Obj.Is_Null;
    
@@ -57,9 +56,9 @@ package Nanomsg.Socket is
    
 private
    type Socket_T is tagged record
-      Fd : Integer := -1; -- File Descriptor
-      Domain : Nanomsg.Domains.Domain_T;
-      Protocol : Nanomsg.Protocols.Protocol_T;
+      Fd       : Integer := -1; -- File Descriptor
+      Domain   : Nanomsg.Domains.Domain_T;
+      Protocol : Protocol_T;
       Endpoint : Integer := -1;
    end record;
 end Nanomsg.Socket;

@@ -14,7 +14,7 @@ package body  Nanomsg.Socket is
    
    procedure Init (Obj      :    out Socket_T;
                    Domain   : in     Nanomsg.Domains.Domain_T;
-                   Protocol : in     Nanomsg.Protocols.Protocol_T
+                   Protocol : in     Protocol_T
                   ) is
       
       function C_Nn_Socket (Domain : in C.Int; Protocol : in C.Int) return C.Int
@@ -22,7 +22,7 @@ package body  Nanomsg.Socket is
       
    begin
       Obj.Fd := Integer (C_Nn_Socket (Nanomsg.Domains.To_C (Domain), 
-                                      Nanomsg.Protocols.To_C (Protocol)));
+                                      C.Int (Protocol)));
       if Obj.Fd < 0 then 
          raise Socket_Exception with "Init: " & Nanomsg.Errors.Errno_Text;
       end if;

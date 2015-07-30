@@ -1,5 +1,5 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pair;
 with Aunit.Assertions;
 package body Nanomsg.Test_Socket_Bind_Connect is
       
@@ -9,8 +9,8 @@ package body Nanomsg.Test_Socket_Bind_Connect is
       use Aunit.Assertions;
       Address : constant String := "tcp://127.0.0.1:5555";
    begin
-      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pair);
-      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pair);
+      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_Pair);
+      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_Pair);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd,

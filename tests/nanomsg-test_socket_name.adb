@@ -1,5 +1,5 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pair;
 with Aunit.Assertions;
 with Nanomsg.Sockopt;
 with Interfaces.C.Strings;
@@ -13,7 +13,7 @@ package body Nanomsg.Test_Socket_Name is
       use type Interfaces.C.Strings.Chars_Ptr;
       package C_Strings renames Interfaces.C.Strings;
    begin
-      Nanomsg.Socket.Init (T.Socket, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pair);
+      Nanomsg.Socket.Init (T.Socket, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_Pair);
       Assert (Condition => not T.Socket.Is_Null, 
 	      Message	=> "Failed to initialize socket");
       Nanomsg.Socket.Set_Option (T.Socket, 

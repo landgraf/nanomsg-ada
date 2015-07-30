@@ -1,5 +1,5 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pair;
 with Aunit.Assertions;
 package body Nanomsg.Test_Socket_Create_Close is
    
@@ -8,7 +8,7 @@ package body Nanomsg.Test_Socket_Create_Close is
       -- Download attachments based on timestamp selection
       use Aunit.Assertions;
    begin
-      Nanomsg.Socket.Init (T.Socket, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pair);
+      Nanomsg.Socket.Init (T.Socket, Nanomsg.Domains.Af_Sp, Nanomsg.Pair.Nn_Pair);
       Assert (Condition => not T.Socket.Is_Null, Message => "Failed to initialize socket");
       Nanomsg.Socket.Close (T.Socket);
       Assert (Condition => T.Socket.Is_Null, Message => "Failed to close socket");

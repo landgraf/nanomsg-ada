@@ -1,5 +1,5 @@
 with Nanomsg.Domains;
-with Nanomsg.Protocols;
+with Nanomsg.Pipeline;
 with Aunit.Assertions;
 with Nanomsg.Messages;
 package body Nanomsg.Test_Send_Binary_File is
@@ -11,8 +11,8 @@ package body Nanomsg.Test_Send_Binary_File is
       Msg2 : Nanomsg.Messages.Message_T := Nanomsg.Messages.Empty_Message;
    begin
       Assert (False, "Not Implemented yer");
-      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Push);
-      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Protocols.Nn_Pull);
+      Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Push);
+      Nanomsg.Socket.Init (T.Socket2, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Pull);
       Assert (Condition => not T.Socket1.Is_Null, Message => "Failed to initialize socket1");
       Assert (Condition => not T.Socket2.Is_Null, Message => "Failed to initialize socket2");
       Assert (Condition => T.Socket1.Get_Fd /= T.Socket2.Get_Fd, 
