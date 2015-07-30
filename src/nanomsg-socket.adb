@@ -150,6 +150,7 @@ package body  Nanomsg.Socket is
 			  Value  : System.Address;
 			  Size   : C.Size_T) return C.Int with Import, Convention => C, External_Name => "nn_setsockopt";
    
+   
    procedure Set_Option (Obj   : in out Socket_T;
                          Level : in     Nanomsg.Sockopt.Option_Level_T;
                          Name  : in     Nanomsg.Sockopt.Option_Type_T;
@@ -176,7 +177,8 @@ package body  Nanomsg.Socket is
       C_Value : C.Strings.Char_Array_Access := new C.Char_Array'(C.To_C (Value)) with Convention => C;
       procedure Free is new Ada.Unchecked_Deallocation (Name	=> C.Strings.Char_Array_Access, 
 							Object	=> C.Char_Array);
-      Size	: C.Size_T	:= C_Value'Length;
+      use type C.Size_T;
+      Size	: C.Size_T	:= C_Value'Length - 1;
    begin
       if C_Setsockopt (C.Int (Obj.Fd),
                        C.Int (Level), 
