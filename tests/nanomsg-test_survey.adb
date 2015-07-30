@@ -74,7 +74,7 @@ package body Nanomsg.Test_Survey is
    
    function Name (T : TC) return Message_String is
    begin
-      return Aunit.Format ("Test case name : Publisher/Subsriber test");
+      return Aunit.Format ("Test case name : Survey test");
    end Name;
    
    procedure Tear_Down (T : in out Tc) is
@@ -82,6 +82,11 @@ package body Nanomsg.Test_Survey is
       if T.Server.Get_Fd >= 0 then
          T.Server.Close;
       end if;
+      for Client of T.Clients loop
+         if Client.Get_Fd >= 0 then
+            Client.Close;
+         end if;
+      end loop;
       
    end Tear_Down;
 
