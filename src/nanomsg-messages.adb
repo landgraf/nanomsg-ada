@@ -3,7 +3,7 @@ with Interfaces.C.Strings;
 package body Nanomsg.Messages is
    use Ada.Streams;
    package C renames Interfaces.C;
-   function Is_Empty (Obj : in Message_T) return Boolean is (Obj.Length = 0);
+   function Is_Empty (Obj : in Message_T) return Boolean is (Obj.Length = 0 or Obj.Payload = null);
    
    
    procedure From_String (Message :    out Message_T;
