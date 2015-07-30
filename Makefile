@@ -16,10 +16,10 @@ gprdir ?= ${prefix}/share/gpr
 VERSION = 0.1
 
 build:
-	${BUILDER} -P gnat/${NAME}
+	${BUILDER} ${FLAGS} -P gnat/${NAME}
 
 check: build
-	${BUILDER} -P gnat/${NAME}_tests
+	${BUILDER} ${FLAGS} -P gnat/${NAME}_tests
 
 all: build	
 
