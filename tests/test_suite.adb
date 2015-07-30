@@ -8,6 +8,7 @@ with Nanomsg.Test_Message_Text_Convert;
 with Nanomsg.Test_Req_Rep;
 with Nanomsg.Test_Pair;
 with Nanomsg.Test_Pub_sub;
+with Nanomsg.Test_Survey;
 with Nanomsg.Test_Socket_Name;
 with Nanomsg.Test_Message_Send_Receive_Million;
 function Test_Suite return Access_Test_Suite is
@@ -22,6 +23,7 @@ begin
    Ts_Ptr.Add_Test (new Nanomsg.Test_Req_Rep.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Pair.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Pub_Sub.Tc);
+   Ts_Ptr.Add_Test (new Nanomsg.Test_Survey.Tc);
    Ts_Ptr.Add_Test (new Nanomsg.Test_Message_Send_Receive_Million.Tc);
    return Ts_Ptr;
 end Test_Suite;
