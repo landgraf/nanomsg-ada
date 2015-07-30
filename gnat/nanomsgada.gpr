@@ -5,8 +5,4 @@ library project nanomsgada is
    for Library_Kind use "relocatable";
    for Library_Name use "nanomsgada";
    
-   package Linker is
-      for Default_Switches ("Ada") use ("-lnanomsg");
-   end Linker;
-      
 end nanomsgada;
