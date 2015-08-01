@@ -50,6 +50,11 @@ package body Nanomsg.Test_Pair is
       Nanomsg.Socket.Bind (T.Socket2, "tcp://*:5555");
       Nanomsg.Socket.Connect (T.Socket1, Address);
       
+      Assert (Condition => T.Socket1.Is_Ready (To_Send => True, To_Receive => False),
+              Message => "Socket 1 is not ready");
+      Assert (Condition => T.Socket2.Is_Ready (To_Send => True, To_Receive => False),
+              Message => "Socket 2 is not ready");
+      
       -- Pair is bi-directional communication
       -- Sendting few messages 
       for I in 1 .. 10 loop
