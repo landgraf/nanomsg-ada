@@ -21,6 +21,9 @@ build:
 check: build
 	${BUILDER} ${FLAGS} -P gnat/${NAME}_tests
 
+clean:
+	rm -rf bin/* obj/* lib/*
+
 all: build	
 
 
