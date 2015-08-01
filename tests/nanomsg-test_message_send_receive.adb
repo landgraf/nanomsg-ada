@@ -42,8 +42,13 @@ package body Nanomsg.Test_Message_Send_Receive is
               Message => "Descriptors collision!");
       Nanomsg.Socket.Connect (T.Socket1, Address);
       Nanomsg.Socket.Bind (T.Socket2, "tcp://*:5555");
+      Assert (not T.Socket2.Has_Message, "Socket has message before other side send one");
       T.Socket1.Send (Msg1); 
-      T.Socket2.Receive (Msg2);
+      if T.Socket2.Has_Message then
+        T.Socket2.Receive (Msg2);
+      else
+        Assert (False, "Socket 2 doesn't have messages");
+      end if;
       Assert (Condition => Msg1.Text = Msg2.Text,
               Message => "Message transfer failed. Texts are not identical" & Ascii.Lf & 
                 "Sent: " & Msg1.Text & "; Received: " & Msg2.Text);

@@ -77,6 +77,7 @@ package Nanomsg.Socket is
                          Name  : in     Nanomsg.Sockopt.Option_Type_T;
                          Value : in     String);
    
+   function Has_Message (Obj : in Socket_T) return Boolean;
 private
    type Socket_T is tagged record
       Fd       : Integer := -1; -- File Descriptor
