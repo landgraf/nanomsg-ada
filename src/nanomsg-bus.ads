@@ -1,4 +1,3 @@
-{header}
 --  The MIT License (MIT)
 
 --  Copyright (c) 2015 Pavel Zhukov <landgraf@fedoraproject.org>
@@ -22,6 +21,8 @@
 --  SOFTWARE.
 
 package Nanomsg.Bus is
+
    Nn_Proto_Bus : constant := 7;
-   Nn_Bus : constant Protocol_T := Nn_Proto_Bus * 16 + 0;и
+
+   Nn_Bus : constant Protocol_T := Nn_Proto_Bus * 16 + 0;
 end Nanomsg.Bus;
