@@ -56,14 +56,14 @@ make check
 
 %files devel
 %doc README.md
-%{_libdir}/lib%{name}*.so.?
 %{_libdir}/lib%{name}*.so
-%{_libdir}/%{name}/lib%{name}*.so.?
 %{_libdir}/%{name}/lib%{name}*.so
 %{_libdir}/%{name}/*.ali
 %{_includedir}/%{name}
 %{_docdir}/%{name}
 %{_GNAT_project_dir}/%{name}*
+%{_GNAT_project_dir}/manifests/%{name}*
+
 %doc
 
 
