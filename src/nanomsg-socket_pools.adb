@@ -40,7 +40,7 @@ package body Nanomsg.Socket_Pools is
       with Import, Convention => C , External_Name => "nn_poll";
       
       Req       : Nn_Poll_Array_T; 
-      In_Flags  : C.Short := C.Short ((if Send then NN_Pollin else 0) or (if Receive then NN_Pollout else 0));
+      In_Flags  : C.Short := C.Short ((if Send then NN_Pollout else 0) or (if Receive then NN_Pollin else 0));
       Out_Flags : C.Short := 0;
       use type C.Int;
                              
@@ -54,12 +54,6 @@ package body Nanomsg.Socket_Pools is
                             Revents => Out_Flags);
          end loop;
       end;
-      if Send then 
-         Req(1).Events := C.Short (Flags_T (Req(1).Events) or Nn_Pollout);
-      end if;
-      if Receive then
-         Req(1).Events := C.Short (Flags_T (Req(1).Events) or Nn_Pollin);
-      end if;
       
       if Nn_Poll (Req,  Req'Length,  1000) < 0 then
          raise Nanomsg.Socket.Socket_Exception with "Nn_Poll failed";
@@ -67,10 +61,10 @@ package body Nanomsg.Socket_Pools is
       
       for Element of Req loop
          declare
-            Result : Flags_T := Flags_T (Element.Events) and Flags_T (Element.Revents);
+            Result : Flags_T := Flags_T (Element.Revents);
          begin
             if Send and then Receive then
-               if (Result or Nn_Pollin or Nn_Pollout) = (Nn_Pollin or Nn_Pollout) then
+               if (Result and (Nn_Pollin or Nn_Pollout)) = (Nn_Pollin or Nn_Pollout) then
                   Pool_Container_P.Insert (Container => Retval.Pool, 
                                            Key       => Integer (Element.Fd), 
                                            New_Item  => Pool_Container_P.Element (Container => Self.Pool, 
@@ -78,7 +72,7 @@ package body Nanomsg.Socket_Pools is
                end if;
             else
                declare
-               Is_Matched  : Boolean := (Result or (if Send then Nn_Pollout else Nn_Pollin)) = (if Send then Nn_Pollout else Nn_Pollin);
+               Is_Matched  : Boolean := (Result and (if Send then Nn_Pollout else Nn_Pollin)) = (if Send then Nn_Pollout else Nn_Pollin);
                begin
                   if Is_Matched then
                      Pool_Container_P.Insert (Container => Retval.Pool, 
@@ -102,7 +96,7 @@ package body Nanomsg.Socket_Pools is
    
    function Ready_To_Send (Self : in Pool_T) return Pool_T is
    begin
-      return Check_Pool (Self, Receive => True, Send => False);
+      return Check_Pool (Self, Receive => False, Send => True);
    end Ready_To_Send;
    
    function Ready_To_Send_Receive (Self : in Pool_T) return Pool_T is

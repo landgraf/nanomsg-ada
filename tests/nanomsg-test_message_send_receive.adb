@@ -48,7 +48,7 @@ package body Nanomsg.Test_Message_Send_Receive is
               "Socket has message before other side send one");
       Assert ( T.Socket1.Is_Ready (To_Send       => True,
                                    To_Receive    => False), 
-              "Socket has message before other side send one");
+              "Socket is not ready for sending");
       T.Socket1.Send (Msg1); 
       if  T.Socket2.Is_Ready (To_Send => False,
                               To_Receive => True)  then
