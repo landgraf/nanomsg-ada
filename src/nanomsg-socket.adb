@@ -29,6 +29,7 @@ with Interfaces.C.Pointers;
 with Nanomsg.Errors;
 with Nanomsg.Sockopt;
 with System;
+with Nanomsg.Socket_Pools;
 package body  Nanomsg.Socket is
    package C renames Interfaces.C;
    use type C.Int;
@@ -275,53 +276,23 @@ package body  Nanomsg.Socket is
    end Get_Option;
 
    function  Is_Ready (Obj        : in Socket_T;
-                    To_Send    : in Boolean := False;
-                    To_Receive : in Boolean := True) return Boolean
+                       To_Send    : in Boolean := False;
+                       To_Receive : in Boolean := True) return Boolean
    is
-      type Flags_T is mod 2**C.Short'Size with Size => C.Short'Size;
-      nn_pollin  :  constant Flags_T := 1;
-      nn_pollout :  constant Flags_T := 2;
-
-      type Nn_Poll_T is record
-         Fd      : C.Int;
-         Events  : C.Short;
-         Revents : C.Short;
-      end record with Convention => C;
-
-      type Nn_Poll_Array_T is array (1 .. 1) of Nn_Poll_T with Convention => C;
-
-      type Nn_Poll_Array_Access_T is access all Nn_Poll_Array_T with Convention => C;
-
-      -- int nn_poll (struct nn_pollfd *fds, int nfds, int timeout);
-      function Nn_Poll (Fds     : in out Nn_Poll_Array_T;
-                        Nfds    :        C.Int;
-                        Timeout :        C.Int) return C.Int
-      with Import, Convention => C , External_Name => "nn_poll";
-
-      Req : Nn_Poll_Array_T  := (1 => (Fd      => C.Int (Obj.Fd),
-                                       Events  => 0,
-                                       Revents => 0));
+      Pool : Nanomsg.Socket_Pools.Pool_T;
    begin
-      if To_Send then 
-         Req(1).Events := C.Short (Flags_T (Req(1).Events) or Nn_Pollout);
-      end if;
-      if To_Receive then
-         Req(1).Events := C.Short (Flags_T (Req(1).Events) or Nn_Pollin);
-      end if;
-      
-      if Nn_Poll (Req,  Req'Length,  1000) < 0 then
-         raise Socket_Exception with "Nn_Poll failed";
-      end if;
-      
-      if To_Send and To_Receive then
-         return (Flags_T (Req(1).Revents) and NN_Pollin) = Nn_Pollin and then
-           (Flags_T (Req(1).Revents) and NN_Pollout) = Nn_Pollout;
+      Pool.Add_Socket (Obj);
+      if To_Send and then To_Receive then
+         return Pool.Ready_To_Send_Receive.Has_Socket (Obj);
       elsif To_Send then
-         return (Flags_T (Req(1).Revents) and NN_Pollout) = Nn_Pollout;
+         return Pool.Ready_To_Send.Has_Socket (Obj);
       elsif To_Receive then
-         return (Flags_T (Req(1).Revents) and NN_Pollin) = Nn_Pollin;
+         return Pool.Ready_To_Receive.Has_Socket (Obj);
       else
-         return False;
+         raise Socket_Exception;
       end if;
    end Is_Ready;
+   
+   function "=" (Left, Right : in Socket_T) return Boolean is (Left.Fd = Right.Fd);
+
 end Nanomsg.Socket;

@@ -80,6 +80,8 @@ package Nanomsg.Socket is
    function Is_Ready (Obj        : in Socket_T;
                       To_Send    :    Boolean := False;
                       To_Receive :    Boolean := True) return Boolean;
+   
+   function "=" (Left, Right : in Socket_T) return Boolean;
 private
    type Socket_T is tagged record
       Fd       : Integer := -1; -- File Descriptor

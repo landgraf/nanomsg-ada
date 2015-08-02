@@ -41,7 +41,9 @@ make %{?_smp_mflags}
 cd %{buildroot}/%{_libdir} && ln -s %{name}/lib%{name}.so.%{version} .
 
 %check
+export LD_LIBRARY_PATH="%{buildroot}/%{_libdir}/:$LD_LIBRARY_PATH"
 make check
+./bin/testme
 
 %post -p /sbin/ldconfig
 
