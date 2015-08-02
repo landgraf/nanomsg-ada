@@ -14,12 +14,15 @@ bindir ?= ${prefix}/bin
 includedir ?= ${prefix}/include
 gprdir ?= ${prefix}/share/gpr
 VERSION = 0.1
+export LIBRARY_TYPE ?= relocatable
+INSTALLER ?=  gprinstall -p --prefix=${prefix} --sources-subdir=${includedir}/${NAME} \
+			--link-lib-subdir=${libdir} --lib-subdir=${libdir}/${NAME}
 
 build:
-	${BUILDER} ${FLAGS} -P gnat/${NAME}
+	${BUILDER} ${FLAGS} -P gnat/${PROJECT}
 
 check: build
-	${BUILDER} ${FLAGS} -P gnat/${NAME}_tests
+	${BUILDER} ${FLAGS} -P gnat/${PROJECT}_tests
 
 clean:
 	rm -rf bin/* obj/* lib/*
@@ -27,3 +30,16 @@ clean:
 all: build	
 
 
+clean_rpm:
+	rm -rf ${HOME}/rpmbuild/SOURCES/${NAME}-${VERSION}.tgz
+	rm  -f packaging/${NAME}-build.spec
+	find ${HOME}/rpmbuild -name "${NAME}*.rpm" -exec rm -f {} \; 
+
+rpm: clean_rpm
+	git archive --prefix=${NAME}-${VERSION}/ -o ${HOME}/rpmbuild/SOURCES/${NAME}-${VERSION}.tar.gz HEAD
+	sed "s/@RELEASE@/`date +%s`/;s/@DEBUG@/${DEBUG}/" packaging/Fedora.spec > packaging/${NAME}-build.spec
+	rpmbuild -ba packaging/${NAME}-build.spec
+	rm -f packaging/${NAME}-build.spec
+
+install:
+	${INSTALLER} -P gnat/${PROJECT}
