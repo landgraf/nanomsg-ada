@@ -6,6 +6,10 @@ library project nanomsgada is
    for Library_Kind use "relocatable";
    for Library_Name use "nanomsgada";
    for Library_Version use "lib" & Project'Library_Name & ".so." & "0.1";
+   
+   package Linker is
+      for Linker_Options use ("-lnanomsg");
+   end Linker;
 
   package Install is
     for Lib_Subdir use Directories.Lib & "/nanomsg-ada/";
