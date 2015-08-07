@@ -37,7 +37,18 @@ package body Nanomsg.Test_Message_Send_Receive_Million is
       Begun : Ada.Calendar.Time;
       use type Ada.Calendar.Time;
       Dur : Duration;
-
+      
+      task Sender is
+         entry Start;
+      end Sender;
+      
+      task body Sender is
+      begin
+         accept Start;
+         for X in 1 .. 1_000_000 loop
+            T.Socket1.Send (Msg1);
+         end loop;
+      end Sender;
    begin
       Nanomsg.Messages.From_String (Msg1, "Hello world");
       Nanomsg.Socket.Init (T.Socket1, Nanomsg.Domains.Af_Sp, Nanomsg.Pipeline.Nn_Push);
@@ -49,9 +60,9 @@ package body Nanomsg.Test_Message_Send_Receive_Million is
       Nanomsg.Socket.Connect (T.Socket1, Address);
       Nanomsg.Socket.Bind (T.Socket2, "tcp://*:5555");
       Begun := Ada.Calendar.Clock;
+      Sender.Start;
       for X in 1 .. 1_000_000 loop
-         T.Socket1.Send (Msg1); 
-         T.Socket2.Receive (Msg2);
+           T.Socket2.Receive (Msg2);
       end loop;
       Dur := Ada.Calendar.Clock - Begun;
       Ada.Text_Io.Put_Line ("Sending of million messages in pipeline mode took: " & Duration'Image (Dur) & " seconds");
