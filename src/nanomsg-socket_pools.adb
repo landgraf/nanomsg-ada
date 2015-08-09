@@ -39,9 +39,10 @@ package body Nanomsg.Socket_Pools is
                         Timeout :        C.Int) return C.Int
       with Import, Convention => C , External_Name => "nn_poll";
       
-      Req       : Nn_Poll_Array_T; 
-      In_Flags  : C.Short := C.Short ((if Send then NN_Pollout else 0) or (if Receive then NN_Pollin else 0));
-      Out_Flags : C.Short := 0;
+      Req        : Nn_Poll_Array_T; 
+      In_Flags   : C.Short := C.Short ((if Send then NN_Pollout else 0) or (if Receive then NN_Pollin else 0));
+      Out_Flags  : C.Short := 0;
+      Req_Length : Natural := Req'Length;
       use type C.Int;
                              
    begin
@@ -55,7 +56,7 @@ package body Nanomsg.Socket_Pools is
          end loop;
       end;
       
-      if Nn_Poll (Req,  Req'Length,  1000) < 0 then
+      if Nn_Poll (Req,  C.Int (Req_Length),  1000) < 0 then
          raise Nanomsg.Socket.Socket_Exception with "Nn_Poll failed";
       end if;
       
