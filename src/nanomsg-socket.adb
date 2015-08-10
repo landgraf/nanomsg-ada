@@ -73,7 +73,7 @@ package body  Nanomsg.Socket is
    begin
       Obj.Endpoint := Integer (C_Bind(C.Int (Obj.Fd), C_Address));
       C.Strings.Free (C_Address);
-      if Obj.Endpoint < -1 then
+      if Obj.Endpoint < 0 then
          raise Socket_Exception with "Bind: "  & Nanomsg.Errors.Errno_Text;
       end if;
       -- FIXME
