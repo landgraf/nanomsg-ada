@@ -18,7 +18,12 @@ export LIBRARY_TYPE ?= relocatable
 INSTALLER ?=  gprinstall -p --prefix=${prefix} --sources-subdir=${includedir}/${NAME} \
 			--link-lib-subdir=${libdir} --lib-subdir=${libdir}/${NAME}
 
-build:
+gen:
+	gcc src/c/errnogen.c -o bin/errnoctoada
+	./bin/errnoctoada > src/syserrors.ads
+	rm -f bin/errnoctoada
+
+build: gen
 	${BUILDER} ${FLAGS} -P gnat/${PROJECT}
 
 check: build

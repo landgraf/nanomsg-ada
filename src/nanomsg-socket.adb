@@ -29,6 +29,8 @@ with Interfaces.C.Pointers;
 with Nanomsg.Errors;
 with Nanomsg.Sockopt;
 with System;
+with Syserrors;
+use type Syserrors.Errno;
 with Nanomsg.Socket_Pools;
 package body  Nanomsg.Socket is
    package C renames Interfaces.C;
@@ -96,8 +98,9 @@ package body  Nanomsg.Socket is
 
    function Get_Fd (Obj : in Socket_T) return Integer is (Obj.Fd);
 
-   procedure Receive (Obj : in out Socket_T;
-                      Message : out Nanomsg.Messages.Message_T) is
+   procedure Receive (Obj          : in out Socket_T;
+                      Message      :    out Nanomsg.Messages.Message_T;
+                      Non_Blocking : in     Boolean := False ) is
 
 
       Payload : System.Address;
@@ -105,8 +108,8 @@ package body  Nanomsg.Socket is
 
       Received : Integer;
       use type C.Size_T;
-      Flags : constant C.Int := 0;
-      Nn_Msg : constant C.Size_T := C.Size_T'Last;
+      Flags    : C.Int    := (if Non_Blocking then 2 else 0);
+      Nn_Msg   : constant C.Size_T := C.Size_T'Last;
 
       function Nn_Recv (Socket     :     C.Int;
                         Buf_Access : out System.Address;
@@ -119,6 +122,9 @@ package body  Nanomsg.Socket is
    begin
       Received := Integer (Nn_Recv (C.Int (Obj.Fd), Payload, Nn_Msg, Flags));
       if Received < 0 then
+         if Non_Blocking and then  Nanomsg.Errors.Errno = Syserrors.Value (Syserrors.Eagain) then
+            return;
+         end if;
          raise Socket_Exception with "Receive: " & Nanomsg.Errors.Errno_Text;
       end if;
       Message.Set_Length (Received);
@@ -294,5 +300,13 @@ package body  Nanomsg.Socket is
    end Is_Ready;
    
    function "=" (Left, Right : in Socket_T) return Boolean is (Left.Fd = Right.Fd);
+   
+   function Receive (Obj          : in out Socket_T;
+                     Message      :    out Nanomsg.Messages.Message_T;
+                     Non_Blocking : in     Boolean := False) return Natural is
+   begin
+      Receive (Obj, Message, Non_Blocking);
+      return Message.Get_Length;
+   end Receive;
 
 end Nanomsg.Socket;

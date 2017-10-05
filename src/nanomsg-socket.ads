@@ -54,9 +54,14 @@ package Nanomsg.Socket is
    procedure Send (Obj     : in Socket_T;
                    Message :    Nanomsg.Messages.Message_T);
    
-   procedure Receive (Obj     : in out Socket_T;
-                      Message :    out Nanomsg.Messages.Message_T);
+   procedure Receive (Obj          : in out Socket_T;
+                      Message      :    out Nanomsg.Messages.Message_T;
+                      Non_Blocking : in     Boolean := False);
    
+   function Receive (Obj          : in out Socket_T;
+                     Message      :    out Nanomsg.Messages.Message_T;
+                     Non_Blocking : in     Boolean := False) return Natural;
+
    procedure Delete_Endpoint (Obj : in out Socket_T);
    
    function Get_Option (Obj   : in Socket_T;
